@@ -34,6 +34,9 @@ jobs:
         with:
           repository: ayaka-notes/overleaf-pro
           ref: server-pro
+      - name: Resolve MONOREPO_REVISION
+        run: |
+          echo "MONOREPO_REVISION=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
       - name: Prepare
         run: |
           platform=${{ matrix.platform }}
@@ -73,12 +76,14 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: Dockerfile
+          file: ./server-ce/Dockerfile
           platforms: ${{ matrix.platform }}
           build-args: |
             OVERLEAF_BASE_TAG=${{ env.REGISTRY_IMAGE }}-base@${{ steps.build_base.outputs.digest }}
+          labels: |
+            ${{ steps.meta.outputs.labels }}
+            com.overleaf.pro.revision=${{ env.MONOREPO_REVISION }}
           tags: ${{ env.REGISTRY_IMAGE }}
-          labels: ${{ steps.meta.outputs.labels }}
           outputs: type=image,push-by-digest=true,name-canonical=true,push=true
       
       - name: Export digest
