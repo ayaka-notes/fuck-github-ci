@@ -66,8 +66,21 @@ jobs:
           cd ./server-ce/
           cp .dockerignore ../
       
-      - name: Set up Docker Buildx
+      # --- Set up Docker ---
+      # See: https://docs.docker.com/build/ci/github-actions/multi-platform/
+      - name: Set up Docker (enable containerd image store)
+        uses: docker/setup-docker-action@v4
+        with:
+          daemon-config: |
+            {
+              "features": {
+                "containerd-snapshotter": true
+              }
+            }
+      - name: Set up Buildx (docker driver)
         uses: docker/setup-buildx-action@v3
+        with:
+          driver: docker
 
       - name: Build and push by digest
         id: build_base
@@ -76,7 +89,7 @@ jobs:
           context: .
           file: ./server-ce/Dockerfile-base
           platforms: ${{ matrix.platform }}
-          labels: ${{ steps.meta.outputs.labels }}
+          labels: ${{ steps.meta.outputs.labels }}-base:latest
           tags: ${{ env.REGISTRY_IMAGE }}-base
           outputs: type=image,push-by-digest=false,name-canonical=true,push=false
           load: true
@@ -91,7 +104,7 @@ jobs:
           file: ./server-ce/Dockerfile
           platforms: ${{ matrix.platform }}
           build-args: |
-            OVERLEAF_BASE_TAG=${{ env.REGISTRY_IMAGE }}-base@${{ steps.build_base.outputs.digest }}
+            OVERLEAF_BASE_TAG=${{ env.REGISTRY_IMAGE }}-base:latest
           labels: |
             ${{ steps.meta.outputs.labels }}
             com.overleaf.pro.revision=${{ env.MONOREPO_REVISION }}
