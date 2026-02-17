@@ -174,7 +174,7 @@ jobs:
 
       - name: Inspect image
         run: |
-          docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:${{ env.version }}-${{ env.PLATFORM_PAIR }}
+          docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:${{ env.version }}
 
 
 
