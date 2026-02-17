@@ -79,6 +79,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           tags: ${{ env.REGISTRY_IMAGE }}-base
           outputs: type=image,push-by-digest=false,name-canonical=true,push=false
+          load: true
           push: false
           provenance: false
           sbom: false
