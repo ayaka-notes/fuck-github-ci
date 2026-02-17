@@ -89,8 +89,8 @@ jobs:
           context: .
           file: ./server-ce/Dockerfile-base
           platforms: ${{ matrix.platform }}
-          labels: ${{ steps.meta.outputs.labels }}-base:latest
-          tags: ${{ env.REGISTRY_IMAGE }}-base
+          labels: ${{ steps.meta.outputs.labels }}-base
+          tags: ${{ env.REGISTRY_IMAGE }}-base:latest
           outputs: type=image,name-canonical=true,push=false
           load: true
           push: false
