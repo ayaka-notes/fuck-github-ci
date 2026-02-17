@@ -155,3 +155,25 @@ jobs:
       - name: Inspect image
         run: |
           docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:server-pro
+  clean-image:
+    runs-on: ubuntu-latest
+    needs: merge
+    steps:
+      - name: Delete untagged GHCR versions (dangling digests)
+        env:
+          GH_TOKEN: ${{ secrets.ORGTOKEN }}
+          ORG: ayaka-notes
+          PACKAGE: fuck-github-ci
+        run: |
+          set -euo pipefail
+  
+          echo "Listing versions for $ORG/$PACKAGE ..."
+          gh api -H "Accept: application/vnd.github+json" \
+            /orgs/$ORG/packages/container/$PACKAGE/versions \
+            --paginate \
+          | jq -r '.[] | select((.metadata.container.tags|length)==0) | .id' \
+          | while read -r id; do
+              echo "Deleting untagged version id=$id"
+              gh api --method DELETE -H "Accept: application/vnd.github+json" \
+                /orgs/$ORG/packages/container/$PACKAGE/versions/$id
+            done
