@@ -96,6 +96,7 @@ jobs:
             ${{ steps.meta.outputs.labels }}
             com.overleaf.pro.revision=${{ env.MONOREPO_REVISION }}
           tags: ${{ env.REGISTRY_IMAGE }}
+          pull: false
           outputs: type=image,push-by-digest=true,name-canonical=true,push=true
           provenance: false
           sbom: false
