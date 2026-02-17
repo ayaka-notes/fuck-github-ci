@@ -35,8 +35,8 @@ jobs:
       - name: "Checkout Repository"
         uses: actions/checkout@main
         with:
-          ref: ${{ env.LATEST_RELEASE_REF }}
           repository: ayaka-notes/overleaf-pro
+          ref: ${{ env.LATEST_RELEASE_REF }}
       - name: Resolve MONOREPO_REVISION
         run: |
           echo "MONOREPO_REVISION=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
@@ -115,6 +115,7 @@ jobs:
           labels: |
             ${{ steps.meta.outputs.labels }}
             com.overleaf.pro.revision=${{ env.MONOREPO_REVISION }}
+          tags: ${{ env.REGISTRY_IMAGE }}:${{ env.version }}-${{ env.PLATFORM_PAIR }}
           outputs: type=image,name-canonical=true,push=true
           provenance: false
           sbom: false
@@ -173,7 +174,9 @@ jobs:
 
       - name: Inspect image
         run: |
-          docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:server-pro
+          docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:${{ env.version }}-${{ env.PLATFORM_PAIR }}
+
+
 
 
 
