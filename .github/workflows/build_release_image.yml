@@ -91,7 +91,7 @@ jobs:
           platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}-base:latest
           tags: ${{ env.REGISTRY_IMAGE }}-base
-          outputs: type=image,push-by-digest=false,name-canonical=true,push=false
+          outputs: type=image,name-canonical=true,push=false
           load: true
           push: false
           provenance: false
@@ -110,7 +110,7 @@ jobs:
             com.overleaf.pro.revision=${{ env.MONOREPO_REVISION }}
           tags: ${{ env.REGISTRY_IMAGE }}
           pull: false
-          outputs: type=image,push-by-digest=true,name-canonical=true,push=true
+          outputs: type=image,name-canonical=true,push=true
           provenance: false
           sbom: false
       
