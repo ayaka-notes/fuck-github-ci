@@ -1,0 +1,43 @@
+# ---------------------------------
+# This workflow is used to build release images
+# and push them to GitHub Container Registry
+#
+# Published at:
+#     ghcr.io/ayaka-notes/overleaf-pro/
+#
+# ---------------------------------
+
+name: Build Release Image
+
+# Controls when the workflow will run
+on:
+  workflow_dispatch:
+
+env:
+  GHCR_REGISTRY: ghcr.io
+  REGISTRY_IMAGE: ghcr.io/${{ github.repository }}
+
+jobs:
+
+  clean-image:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Delete untagged GHCR versions (dangling digests)
+        env:
+          GH_TOKEN: ${{ secrets.ORGTOKEN }}
+          ORG: ayaka-notes
+          PACKAGE: fuck-github-ci
+        run: |
+          set -euo pipefail
+  
+          echo "Listing versions for $ORG/$PACKAGE ..."
+          gh api -H "Accept: application/vnd.github+json" \
+            /orgs/$ORG/packages/container/$PACKAGE/versions \
+            --paginate \
+          | jq -r '.[] | select((.metadata.container.tags|length)==0) | .id' \
+          | while read -r id; do
+              echo "Deleting untagged version id=$id"
+              gh api --method DELETE -H "Accept: application/vnd.github+json" \
+                /orgs/$ORG/packages/container/$PACKAGE/versions/$id
+            done
