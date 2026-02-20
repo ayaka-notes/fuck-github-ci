@@ -43,7 +43,8 @@ jobs:
       - name: Prepare
         run: |
           platform=${{ matrix.platform }}
-          echo "PLATFORM_PAIR=${platform//\//-}" >> $GITHUB_ENV
+          arch=${platform##*/}
+          echo "PLATFORM_PAIR=$arch" >> $GITHUB_ENV
       - name: Set release version outputs
         id: set_version
         run: |
@@ -97,10 +98,10 @@ jobs:
           file: ./server-ce/Dockerfile-base
           platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
-          tags: ${{ env.REGISTRY_IMAGE }}-base:latest
+          tags: ${{ env.REGISTRY_IMAGE }}-base:latest-${{ env.PLATFORM_PAIR }}-${{ env.MONOREPO_REVISION }}-${{ github.run_id }}
           push: false
           load: true
-          outputs: type=image,name-canonical=true,push=false
+          # outputs: type=image,name-canonical=true,push=false
           provenance: false
           sbom: false
       - name: Build App Image
@@ -111,7 +112,7 @@ jobs:
           file: ./server-ce/Dockerfile
           platforms: ${{ matrix.platform }}
           build-args: |
-            OVERLEAF_BASE_TAG=${{ env.REGISTRY_IMAGE }}-base:latest
+            OVERLEAF_BASE_TAG=${{ env.REGISTRY_IMAGE }}-base:latest-${{ env.PLATFORM_PAIR }}-${{ env.MONOREPO_REVISION }}-${{ github.run_id }}
           labels: |
             ${{ steps.meta.outputs.labels }}
             com.overleaf.pro.revision=${{ env.MONOREPO_REVISION }}
@@ -174,9 +175,18 @@ jobs:
 
       - name: Inspect image
         run: |
-          docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:${{ env.version }}
+          docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:${{ needs.build.outputs.version }}
 
-
+      # --- Retention Policy: Delete old images ---
+      - name: Delete old images
+        uses: snok/container-retention-policy@v2
+        with:
+          image-names: overleaf-pro
+          cut-off: 1s, UTC+8
+          account-type: org
+          org-name: ayaka-notes
+          untagged-only: true
+          token: ${{ secrets.ORGTOKEN }}
 
 
 
