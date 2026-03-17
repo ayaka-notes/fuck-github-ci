@@ -30,7 +30,7 @@ jobs:
     runs-on: ${{ matrix.runner }}
     steps:
       - name: Collect Workflow Telemetry
-        uses: ycfreeman/workflow-telemetry-action@main
+        uses: ycfreeman/workflow-telemetry-action@master  
         
       - name: Get latest release branch
         run: |
