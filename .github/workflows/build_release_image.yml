@@ -29,6 +29,9 @@ jobs:
           runner: ubuntu-24.04-arm
     runs-on: ${{ matrix.runner }}
     steps:
+      - name: Collect Workflow Telemetry
+        uses: ycfreeman/workflow-telemetry-action@main
+        
       - name: Get latest release branch
         run: |
           echo "LATEST_RELEASE_REF=$(git ls-remote --heads --sort='version:refname' https://github.com/ayaka-notes/overleaf-pro.git 'release-v*' | tail -n1 | cut -d/ -f3)" >> $GITHUB_ENV
