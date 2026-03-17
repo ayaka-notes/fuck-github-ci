@@ -23,6 +23,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Collect Workflow Telemetry
+        uses: ycfreeman/workflow-telemetry-action@master  
       - name: Delete untagged GHCR versions (dangling digests)
         env:
           GH_TOKEN: ${{ secrets.ORGTOKEN }}
